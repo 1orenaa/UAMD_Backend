@@ -20,6 +20,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('student')->group(function () {
         Route::get('/statistikat', [StudentController::class, 'statistikat']);
         Route::get('/lende',       [StudentController::class, 'lende']);
+        Route::get('/seksione',    [StudentController::class, 'seksione']);
+        Route::post('/seksione/{sekId}/regjistrohu', [StudentController::class, 'regjistrohu']);
         Route::get('/provime',     [StudentController::class, 'provime']);
     });
 

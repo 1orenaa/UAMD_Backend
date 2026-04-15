@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Regjistrim;
+use App\Models\Seksion;
 use App\Models\Student;
 use App\Models\Provim;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class StudentController extends Controller
 {
@@ -56,6 +59,115 @@ class StudentController extends Controller
             });
 
         return response()->json(['data' => $lende]);
+    }
+
+    /**
+     * Seksionet ku studenti nuk eshte regjistruar ende.
+     */
+    public function seksione(Request $request)
+    {
+        $student = $this->getStudent($request);
+
+        if (!$student) {
+            return response()->json([
+                'message' => 'Profili i studentit nuk u gjet.',
+                'data' => [],
+            ], 404);
+        }
+
+        $regjistruarIds = $student->regjistrime()->pluck('SEK_ID');
+
+        $seksione = Seksion::with(['lende', 'pedagog', 'salle'])
+            ->withCount('regjistrime')
+            ->when($regjistruarIds->isNotEmpty(), function ($query) use ($regjistruarIds) {
+                $query->whereNotIn('SEK_ID', $regjistruarIds);
+            })
+            ->orderBy('SEK_DRAFILL')
+            ->get()
+            ->map(function ($s) {
+                $kapaciteti = $s->salle?->SALLE_KAP;
+                $teRegjistruar = $s->regjistrime_count ?? 0;
+
+                return [
+                    'sek_id' => $s->SEK_ID,
+                    'lenda' => $s->lende?->LEN_EM,
+                    'lenda_kod' => $s->lende?->LEN_KOD,
+                    'kredite' => $s->lende?->LEN_KRED,
+                    'pedagog' => $s->pedagog
+                        ? trim(($s->pedagog->PED_TIT ?? '') . ' ' . $s->pedagog->PED_EM . ' ' . $s->pedagog->PED_MR)
+                        : null,
+                    'data' => $s->SEK_DATA,
+                    'ora_fill' => $s->SEK_DRAFILL ? Carbon::parse($s->SEK_DRAFILL)->format('H:i') : null,
+                    'ora_mba' => $s->SEK_DRAMBIA ? Carbon::parse($s->SEK_DRAMBIA)->format('H:i') : null,
+                    'salla' => $s->salle?->SALLE_EM,
+                    'kapaciteti' => $kapaciteti,
+                    'te_regjistruar' => $teRegjistruar,
+                    'vende_te_lira' => $kapaciteti ? max($kapaciteti - $teRegjistruar, 0) : null,
+                ];
+            })
+            ->filter(function ($s) {
+                return $s['vende_te_lira'] === null || $s['vende_te_lira'] > 0;
+            })
+            ->values();
+
+        return response()->json(['data' => $seksione]);
+    }
+
+    /**
+     * Regjistron studentin ne nje seksion te lire.
+     */
+    public function regjistrohu(Request $request, int $sekId)
+    {
+        $student = $this->getStudent($request);
+
+        if (!$student) {
+            return response()->json([
+                'message' => 'Profili i studentit nuk u gjet.',
+            ], 404);
+        }
+
+        $seksion = Seksion::with(['lende', 'salle'])->withCount('regjistrime')->find($sekId);
+
+        if (!$seksion) {
+            return response()->json([
+                'message' => 'Seksioni nuk u gjet.',
+            ], 404);
+        }
+
+        $ekziston = Regjistrim::where('STD_ID', $student->STD_ID)
+            ->where('SEK_ID', $seksion->SEK_ID)
+            ->exists();
+
+        if ($ekziston) {
+            return response()->json([
+                'message' => 'Jeni regjistruar tashme ne kete seksion.',
+            ], 422);
+        }
+
+        $kapaciteti = $seksion->salle?->SALLE_KAP;
+        $teRegjistruar = $seksion->regjistrime_count ?? 0;
+
+        if ($kapaciteti !== null && $teRegjistruar >= $kapaciteti) {
+            return response()->json([
+                'message' => 'Ky seksion nuk ka me vende te lira.',
+            ], 422);
+        }
+
+        $regjistrim = Regjistrim::create([
+            'REGJL_DT' => now()->toDateString(),
+            'REGJL_STATUS' => 'Aktiv',
+            'STD_ID' => $student->STD_ID,
+            'SEK_ID' => $seksion->SEK_ID,
+        ]);
+
+        return response()->json([
+            'message' => 'Regjistrimi u krye me sukses.',
+            'data' => [
+                'regjl_id' => $regjistrim->REGJL_ID,
+                'sek_id' => $seksion->SEK_ID,
+                'lenda' => $seksion->lende?->LEN_EM,
+            ],
+        ], 201);
     }
 
     /**

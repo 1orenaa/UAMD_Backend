@@ -23,6 +23,16 @@ class Seksion extends Model
         return $this->belongsTo(Pedagog::class, 'PED_ID', 'PED_ID');
     }
 
+    public function salle()
+    {
+        return $this->belongsTo(Salle::class, 'SALLE_ID', 'SALLE_ID');
+    }
+
+    public function regjistrime()
+    {
+        return $this->hasMany(Regjistrim::class, 'SEK_ID', 'SEK_ID');
+    }
+
     public function provime()
     {
         return $this->hasMany(Provim::class, 'SEK_ID', 'SEK_ID');
