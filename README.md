@@ -165,6 +165,48 @@ php artisan serve
 
 Backend will be running at: **http://127.0.0.1:8000**
 
+### 10. (Opsionale) Gjenero dokumentacionin Swagger
+
+Spec-i rigjenerohet automatikisht nëse në `.env` ke `L5_SWAGGER_GENERATE_ALWAYS=true`.
+Për ta bërë manualisht:
+
+```bash
+php artisan l5-swagger:generate
+```
+
+---
+
+## 🧪 Running Tests
+
+Testet ekzekutohen kundrejt një baze SQLite `:memory:` (konfiguruar te `phpunit.xml`),
+pra **nuk kërkojnë SQL Server aktiv** dhe nuk prekin bazën `uni_management`.
+
+```bash
+php artisan test
+# ose: composer test
+# ose, per te pare gjithçka si storje (testdox):
+php artisan test --testdox
+```
+
+Testet kryesore:
+
+| File                            | Coverage                                                                              |
+| ------------------------------- | ------------------------------------------------------------------------------------- |
+| `tests/Feature/AuthTest.php`    | register, login, logout, `/me`, forgot-password, reset-password (13 raste)            |
+| `tests/Feature/StudentTest.php` | role guards, statistikat, seksione, regjistrim (duplikat + konflikt orari), çregjistrim (10 raste) |
+
+---
+
+## 📖 Swagger / OpenAPI Documentation
+
+Dokumentacioni i plotë interaktiv i API-t është i disponueshëm në:
+
+**http://127.0.0.1:8000/api/docs**
+
+- Të gjitha endpoint-et (Auth, Student, Pedagog, Admin) janë të dokumentuara me atribute `#[OA\...]` në kontrollerat përkatës (`app/Http/Controllers/Api/*.php`).
+- Mund të provosh kërkesat direkt nga shfletuesi (**Try it out**).
+- Për endpoint-et që kërkojnë autentikim, merr një token nga `/auth/login`, kliko **Authorize** dhe ngjite tokenin (pa prefiks `Bearer`).
+
 ---
 
 ## 📁 Project Structure
@@ -194,21 +236,42 @@ backend/
 
 ## 🌐 API Endpoints
 
-| Method | URL                  | Description             | Auth Required |
-| ------ | -------------------- | ----------------------- | ------------- |
-| POST   | `/api/auth/register` | Register a new user     | ❌            |
-| POST   | `/api/auth/login`    | Login and receive token | ❌            |
-| POST   | `/api/auth/logout`   | Logout current session  | ✅            |
-| GET    | `/api/me`            | Get current user info   | ✅            |
+| Method | URL                         | Description                   | Auth Required |
+| ------ | --------------------------- | ----------------------------- | ------------- |
+| POST   | `/api/auth/register`        | Register a new user           | ❌            |
+| POST   | `/api/auth/login`           | Login and receive token       | ❌            |
+| POST   | `/api/auth/forgot-password` | Request password reset link   | ❌            |
+| POST   | `/api/auth/reset-password`  | Reset password with token     | ❌            |
+| POST   | `/api/auth/logout`          | Logout current session        | ✅            |
+| GET    | `/api/me`                   | Get current user info         | ✅            |
+
+> 💡 When `APP_DEBUG=true`, `/api/auth/forgot-password` returns the reset
+> token and link in the response body to simplify local testing (no mail
+> server required). In production the token is only written to the log and
+> the response is uniform regardless of whether the email exists.
 
 ---
 
 ## 👥 User Roles
 
-| Role      | Description        |
-| --------- | ------------------ |
-| `student` | University student |
-| `pedagog` | Lecturer / Teacher |
+| Role      | Description           |
+| --------- | --------------------- |
+| `student` | University student    |
+| `pedagog` | Lecturer / Teacher    |
+| `admin`   | System administrator  |
+
+---
+
+## 👨‍💻 Team Contributions
+
+| Member             | GitHub                                       | Main responsibilities (Backend)                                                       |
+| ------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Haris Mandija      | [@HMandija](https://github.com/HMandija)     | Project setup, security (Sanctum, CORS, rate limiting), ERD migrations, Swagger setup |
+| Lorena Fasku       | [@1orenaa](https://github.com/1orenaa)       | `AdminStudentController` — CRUD endpoints for student management                      |
+| Alesia             | [@Alesia-24](https://github.com/Alesia-24)   | Student section listing endpoints (`/student/seksione`)                               |
+| Ela Elezi          | [@elaelezi](https://github.com/elaelezi)     | Route definitions and API structure in `routes/api.php`                               |
+
+> Run `git shortlog -s -n` for live commit counts per contributor.
 
 ---
 

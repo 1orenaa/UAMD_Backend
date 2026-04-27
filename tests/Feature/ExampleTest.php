@@ -2,18 +2,17 @@
 
 namespace Tests\Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
     /**
-     * A basic test example.
+     * Smoke test: aplikacioni boot-on pa gabime dhe endpoint-e te paregjistruar
+     * kthejne 404 (jo 500).
      */
-    public function test_the_application_returns_a_successful_response(): void
+    public function test_aplikacioni_boot_on_dhe_kthen_404_per_rruge_te_panjohur(): void
     {
-        $response = $this->get('/');
-
-        $response->assertStatus(200);
+        $response = $this->get('/rruge-qe-nuk-ekziston');
+        $response->assertStatus(404);
     }
 }

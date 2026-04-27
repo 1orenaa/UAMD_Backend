@@ -9,7 +9,7 @@ return [
                 'title' => 'UniManagement API',
             ],
             'routes' => [
-                'api' => 'api/documentation',
+                'api' => 'api/docs',
             ],
             'paths' => [
                 'use_absolute_path'          => env('L5_SWAGGER_USE_ABSOLUTE_PATH', true),
