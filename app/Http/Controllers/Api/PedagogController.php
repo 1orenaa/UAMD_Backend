@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Pedagog;
 use App\Models\Provim;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(name: 'Pedagog', description: 'Endpoint-e të aksesueshme vetëm nga pedagogët e autentikuar')]
 class PedagogController extends Controller
 {
     /**
@@ -17,9 +19,17 @@ class PedagogController extends Controller
         return Pedagog::where('PED_EMAIL', $request->user()->email)->first();
     }
 
-    /**
-     * Seksionet që ligjëron pedagogu.
-     */
+    #[OA\Get(
+        path: '/pedagog/seksione',
+        summary: 'Seksionet që ligjëron pedagogu',
+        tags: ['Pedagog'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Listë seksionesh të ligjëruara'),
+            new OA\Response(response: 401, description: 'Nuk je i autentikuar'),
+            new OA\Response(response: 403, description: 'Nuk ke rolin pedagog'),
+        ]
+    )]
     public function seksione(Request $request)
     {
         $pedagog = $this->getPedag($request);
@@ -48,9 +58,17 @@ class PedagogController extends Controller
         return response()->json(['data' => $seksione]);
     }
 
-    /**
-     * Provimet e ardhshme për seksionet e pedagogut.
-     */
+    #[OA\Get(
+        path: '/pedagog/provime',
+        summary: 'Provimet e ardhshme për seksionet e pedagogut',
+        tags: ['Pedagog'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Listë provimesh të ardhshme'),
+            new OA\Response(response: 401, description: 'Nuk je i autentikuar'),
+            new OA\Response(response: 403, description: 'Nuk ke rolin pedagog'),
+        ]
+    )]
     public function provime(Request $request)
     {
         $pedagog = $this->getPedag($request);
@@ -83,9 +101,17 @@ class PedagogController extends Controller
         return response()->json(['data' => $provime]);
     }
 
-    /**
-     * Statistikat e pedagogut.
-     */
+    #[OA\Get(
+        path: '/pedagog/statistikat',
+        summary: 'Statistikat e pedagogut (numri i seksioneve, lëndëve, etj.)',
+        tags: ['Pedagog'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Statistikat e pedagogut'),
+            new OA\Response(response: 401, description: 'Nuk je i autentikuar'),
+            new OA\Response(response: 403, description: 'Nuk ke rolin pedagog'),
+        ]
+    )]
     public function statistikat(Request $request)
     {
         $pedagog = $this->getPedag($request);
