@@ -1,0 +1,182 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "UniManagement API",
+        "description": "API për sistemin e menaxhimit të universitetit",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000/api",
+            "description": "Server lokal"
+        }
+    ],
+    "paths": {
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Regjistro user të ri",
+                "operationId": "08136088c4862c313b35d6518bab8d3a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Arta Kelmendi"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "arta@uni.edu"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "fjalkalim8"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "example": "fjalkalim8"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "student",
+                                            "pedagog"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Regjistrimi u krye me sukses"
+                    },
+                    "422": {
+                        "description": "Gabim validimi"
+                    },
+                    "429": {
+                        "description": "Rate limit i kaluar"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Hyr në sistem",
+                "operationId": "99d66635c4992aeaa6aa44ff653d0563",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "arta@uni.edu"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "fjalkalim8"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login u krye — kthen token"
+                    },
+                    "401": {
+                        "description": "Kredenciale të gabuara"
+                    },
+                    "429": {
+                        "description": "Rate limit i kaluar"
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Dil nga sistemi",
+                "operationId": "6abf3b64a4bc7838d56346f05a5153af",
+                "responses": {
+                    "200": {
+                        "description": "Logout u krye me sukses"
+                    },
+                    "401": {
+                        "description": "Nuk je i autentikuar"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Merr të dhënat e userit aktual",
+                "operationId": "bc2032a379aa97707ccc61511897c120",
+                "responses": {
+                    "200": {
+                        "description": "Të dhënat e userit"
+                    },
+                    "401": {
+                        "description": "Nuk je i autentikuar"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Token i marrë nga /auth/login",
+                "bearerFormat": "Token",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Auth"
+        }
+    ]
+}
