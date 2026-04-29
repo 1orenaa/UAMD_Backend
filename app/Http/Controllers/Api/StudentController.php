@@ -283,18 +283,21 @@ class StudentController extends Controller
         )->get();
 
         foreach ($seksionetEStudentit as $sek) {
-            // Dy seksione mbivendosen nëse:
-            // fillimi_ri < mbarimi_ekzistues AND fillimi_ekzistues < mbarimi_ri
+            // Dy seksione mbivendosen nëse janë në të njëjtën ditë DHE oraret
+            // kryqëzohen: fillimi_ri < mbarimi_ekz AND fillimi_ekz < mbarimi_ri.
+            // Seksione në ditë të ndryshme nuk krijojnë kurrë konflikt.
             $mbivendoset =
-                $seksionRi->SEK_DRAFILL < $sek->SEK_DRAMBIA &&
-                $sek->SEK_DRAFILL       < $seksionRi->SEK_DRAMBIA;
+                $seksionRi->SEK_DATA    === $sek->SEK_DATA &&
+                $seksionRi->SEK_DRAFILL <   $sek->SEK_DRAMBIA &&
+                $sek->SEK_DRAFILL       <   $seksionRi->SEK_DRAMBIA;
 
             if ($mbivendoset) {
                 return response()->json([
-                    'message'   => 'Konflikte orari — keni tashmë një seksion në të njëjtën kohë.',
+                    'message'   => 'Konflikte orari — keni tashmë një seksion në të njëjtën ditë dhe orë.',
                     'konflikt'  => [
                         'sek_id'        => $sek->SEK_ID,
                         'lenda'         => $sek->lende?->LEN_EM,
+                        'data'          => $sek->SEK_DATA,
                         'ora_fillimit'  => $sek->SEK_DRAFILL,
                         'ora_mbarimit'  => $sek->SEK_DRAMBIA,
                     ],
