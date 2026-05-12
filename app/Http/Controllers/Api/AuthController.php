@@ -184,6 +184,7 @@ class AuthController extends Controller
         // emaili ekziston apo jo.
         $genericResponse = response()->json([
             'message' => 'Nëse emaili ekziston në sistem, do të marrësh udhëzimet në kutinë postare.',
+            //'message' => 'Ju lutemi të kontrolloni emailin tuaj. Udhëzimet do t'i gjei aty.'
         ]);
 
         if (!$user) {
@@ -240,8 +241,8 @@ class AuthController extends Controller
             )
         ),
         responses: [
-            new OA\Response(response: 200, description: 'Fjalëkalimi u rivendos'),
-            new OA\Response(response: 400, description: 'Token i pavlefshëm ose ka skaduar'),
+            new OA\Response(response: 200, description: 'Fjalëkalimi u përditësua'),
+            new OA\Response(response: 400, description: 'Kodi i verifikimi i pavlefshëm ose ka skaduar'),
             new OA\Response(response: 422, description: 'Gabim validimi'),
         ]
     )]
@@ -267,7 +268,7 @@ class AuthController extends Controller
 
         if (!$row || !Hash::check($request->token, $row->token)) {
             return response()->json([
-                'message' => 'Token i pavlefshëm ose emaili nuk përputhet.',
+                'message' => 'Kodi i verifikimit është i pavlefshëm ose emaili nuk u gjend.',
             ], 400);
         }
 
@@ -277,7 +278,7 @@ class AuthController extends Controller
             DB::table('password_reset_tokens')->where('email', $email)->delete();
 
             return response()->json([
-                'message' => 'Tokeni ka skaduar. Kërko një link të ri rikuperimi.',
+                'message' => 'Linku juaj ka skaduar. Provoni përsëri.',
             ], 400);
         }
 
@@ -298,7 +299,7 @@ class AuthController extends Controller
         $user->tokens()->delete();
 
         return response()->json([
-            'message' => 'Fjalëkalimi u rivendos me sukses. Mund të hysh tani.',
+            'message' => 'Fjalëkalimi u përditësua me sukses. Tani mund të logoheni.',
         ]);
     }
 }

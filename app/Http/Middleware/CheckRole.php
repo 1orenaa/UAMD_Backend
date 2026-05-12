@@ -21,13 +21,13 @@ class CheckRole
 
         if (!$user) {
             return response()->json([
-                'message' => 'Nuk jeni i autentikuar.',
+                'message' => 'Duhet të identifikoheni për të vazhduar.',
             ], 401);
         }
 
         if (!in_array($user->role, $roles)) {
             return response()->json([
-                'message' => 'Nuk keni leje për këtë veprim.',
+                'message' => 'Ju nuk keni autorizim për këtë veprim.',
                 'kerkuar' => $roles,
                 'aktual'  => $user->role,
             ], 403);

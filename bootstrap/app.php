@@ -29,7 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (AuthenticationException $e, Request $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
-                    'message' => 'Nuk jeni i autentikuar. Ju lutem bëni login.',
+                    'message' => 'Nuk jeni i identifikuar. Ju lutem bëni login.',
                 ], 401);
             }
         });
@@ -38,7 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (ValidationException $e, Request $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
-                    'message' => 'Të dhënat janë të pavlefshme.',
+                    'message' => 'Të dhëna të pavlefshme.',
                     'errors'  => $e->errors(),
                 ], 422);
             }

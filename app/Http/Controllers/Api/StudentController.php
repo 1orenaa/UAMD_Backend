@@ -56,8 +56,8 @@ class StudentController extends Controller
         $kredite     = $regjistrime->sum(fn($r) => $r->seksion?->lende?->LEN_KRED ?? 0);
         $sekIds      = $regjistrime->pluck('SEK_ID');
         $provimCount = Provim::whereIn('SEK_ID', $sekIds)
-                            ->where('PRV_DBA', '>=', now()->toDateString())
-                            ->count();
+            ->where('PRV_DBA', '>=', now()->toDateString())
+            ->count();
 
         return response()->json([
             'lende_count'  => $lendeCount,
@@ -216,7 +216,7 @@ class StudentController extends Controller
                     'data'         => $s->SEK_DATA,
                     'ora_fillimit' => $s->SEK_DRAFILL,
                     'ora_mbarimit' => $s->SEK_DRAMBIA,
-                    'i_regjistruar'=> in_array($s->SEK_ID, $regjistruarNe),
+                    'i_regjistruar' => in_array($s->SEK_ID, $regjistruarNe),
                 ];
             });
 
@@ -258,7 +258,7 @@ class StudentController extends Controller
 
         if (!$student) {
             return response()->json([
-                'message' => 'Profili i studentit nuk u gjet në sistem. Kontaktoni administratorin.',
+                'message' => 'Profili i këtij studenti nuk ekziston në sistem. Kontaktoni administratorin.',
             ], 404);
         }
 
@@ -268,16 +268,16 @@ class StudentController extends Controller
         $ekziston = Regjistrim::where('STD_ID', $student->STD_ID)
             ->where('SEK_ID', $seksionRi->SEK_ID)
             ->exists();
-
+        
         if ($ekziston) {
             return response()->json([
-                'message' => 'Jeni regjistruar tashmë në këtë seksion.',
+                'message' => 'Jeni regjistruar më parë në këtë seksion.',
             ], 422);
-        }
+        } 
 
         // ── Kontrolli 2: Konflikt orari ───────────────────────────────────────
         // Gjej seksionet ekzistuese të studentit
-        $seksionetEStudentit = Seksion::whereIn(
+/*         $seksionetEStudentit = Seksion::whereIn(
             'SEK_ID',
             $student->regjistrime()->pluck('SEK_ID')
         )->get();
@@ -290,6 +290,53 @@ class StudentController extends Controller
                 $seksionRi->SEK_DATA    === $sek->SEK_DATA &&
                 $seksionRi->SEK_DRAFILL <   $sek->SEK_DRAMBIA &&
                 $sek->SEK_DRAFILL       <   $seksionRi->SEK_DRAMBIA;
+
+            if ($mbivendoset) {
+                return response()->json([
+                    'message'   => 'Konflikte orari — keni tashmë një seksion në të njëjtën ditë dhe orë.',
+                    'konflikt'  => [
+                        'sek_id'        => $sek->SEK_ID,
+                        'lenda'         => $sek->lende?->LEN_EM,
+                        'data'          => $sek->SEK_DATA,
+                        'ora_fillimit'  => $sek->SEK_DRAFILL,
+                        'ora_mbarimit'  => $sek->SEK_DRAMBIA,
+                    ],
+                ], 422);
+            }
+        } */
+
+        // ── Kontrolli 2: Konflikt orari ───────────────────────────────────────
+        // Gjej seksionet ekzistuese të studentit
+        $seksionetEStudentit = Seksion::whereIn(
+            'SEK_ID',
+            $student->regjistrime()->pluck('SEK_ID')
+        )->get();
+
+        foreach ($seksionetEStudentit as $sek) {
+
+            // krijojme datetime per seksionin e ri 
+            $fillimiRi = Carbon::parse(
+                $seksionRi->SEK_DATA . ' ' . $seksionRi->SEK_DRAFILL
+            );
+
+            $mbarimiRi = Carbon::parse(
+                $seksionRi->SEK_DATA . ' ' . $seksionRi->SEK_DRAMBIA
+            );
+
+            // krijojme datetime per seksionin ekzistues
+            $fillimiEkzistues = Carbon::parse(
+                $sek->SEK_DATA . ' ' . $sek->SEK_DRAFILL
+            );
+
+            $mbarimiEkzistues = Carbon::parse(
+                $sek->SEK_DATA . ' ' . $sek->SEK_DRAMBIA
+            );
+
+            // konflikti ekziston kur seksionet jane ne nje dite dhe intervalet kohore mbivendosen
+            $mbivendoset =
+                $fillimiRi->isSameDay($fillimiEkzistues) &&
+                $fillimiRi->lt($mbarimiEkzistues) &&
+                $fillimiEkzistues->lt($mbarimiRi);
 
             if ($mbivendoset) {
                 return response()->json([
