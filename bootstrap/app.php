@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Middleware\CheckRole;
+use App\Support\ApiErrorResponse;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -8,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use App\Http\Middleware\CheckRole;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,14 +20,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Regjistro alias-in 'role' për CheckRole middleware
         $middleware->alias([
             'role' => CheckRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-
-        // ── 401: Token mungon ose ka skaduar ─────────────────────────────────
         $exceptions->render(function (AuthenticationException $e, Request $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
@@ -34,17 +33,18 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        // ── 422: Gabime validimi ──────────────────────────────────────────────
         $exceptions->render(function (ValidationException $e, Request $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
-                return response()->json([
-                    'message' => 'Të dhëna të pavlefshme.',
-                    'errors'  => $e->errors(),
-                ], 422);
+                return ApiErrorResponse::validation($e);
             }
         });
 
-        // ── 404: Route ose rekord nuk u gjet ─────────────────────────────────
+        $exceptions->render(function (QueryException $e, Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return ApiErrorResponse::database($e);
+            }
+        });
+
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
@@ -53,12 +53,12 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        // ── Gabime HTTP të tjera (403, 405, 429...) ───────────────────────────
         $exceptions->render(function (HttpException $e, Request $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
                 $messages = [
                     403 => 'Nuk keni leje për këtë veprim.',
-                    405 => 'Metoda HTTP nuk lejohet.',
+                    405 => 'Metoda HTTP nuk lejohet për këtë endpoint.',
+                    409 => 'Kërkesa është në konflikt me gjendjen aktuale.',
                     429 => 'Shumë kërkesa. Prisni pak dhe provoni sërish.',
                 ];
 
@@ -68,15 +68,9 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        // ── 500: Gabim i brendshëm i serverit ────────────────────────────────
         $exceptions->render(function (Throwable $e, Request $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
-                $debug = config('app.debug');
-                return response()->json([
-                    'message' => 'Gabim i brendshëm i serverit.',
-                    'detail'  => $debug ? $e->getMessage() : null,
-                ], 500);
+                return ApiErrorResponse::server($e);
             }
         });
-
     })->create();
