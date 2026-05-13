@@ -196,7 +196,7 @@ class AdminStudentController extends Controller
         if ($hasRegjistrime) {
             return response()->json([
                 'message' => 'Nuk mund të fshihet — studenti ka regjistrime aktive.',
-            ], 422);
+            ], 409);
         }
 
         $student->delete();

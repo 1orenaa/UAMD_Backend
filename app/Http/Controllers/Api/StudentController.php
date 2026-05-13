@@ -272,7 +272,7 @@ class StudentController extends Controller
         if ($ekziston) {
             return response()->json([
                 'message' => 'Jeni regjistruar më parë në këtë seksion.',
-            ], 422);
+            ], 409);
         } 
 
         // ── Kontrolli 2: Konflikt orari ───────────────────────────────────────
@@ -301,7 +301,7 @@ class StudentController extends Controller
                         'ora_fillimit'  => $sek->SEK_DRAFILL,
                         'ora_mbarimit'  => $sek->SEK_DRAMBIA,
                     ],
-                ], 422);
+                ], 409);
             }
         } */
 
@@ -348,7 +348,7 @@ class StudentController extends Controller
                         'ora_fillimit'  => $sek->SEK_DRAFILL,
                         'ora_mbarimit'  => $sek->SEK_DRAMBIA,
                     ],
-                ], 422);
+                ], 409);
             }
         }
 

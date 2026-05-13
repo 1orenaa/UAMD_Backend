@@ -102,13 +102,22 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
             return response()->json([
-                'message' => 'Email ose fjalëkalimi është i gabuar.',
+                'message' => 'Ky email nuk është i regjistruar.',
             ], 401);
         }
 
-        $user  = Auth::user();
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Fjalëkalimi është i gabuar.',
+            ], 401);
+        }
+
+        Auth::login($user);
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
