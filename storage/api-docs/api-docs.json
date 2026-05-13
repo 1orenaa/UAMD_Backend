@@ -12,6 +12,245 @@
         }
     ],
     "paths": {
+        "/admin/studentet": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Listo studentët me paginim dhe kërkim",
+                "operationId": "ca04cc91fc44628c4631d5fdd2cab188",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 20
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listë me studentë e paginuar"
+                    },
+                    "401": {
+                        "description": "Nuk je i autentikuar"
+                    },
+                    "403": {
+                        "description": "Nuk ke rolin admin"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Shto student të ri",
+                "operationId": "d6296b1c4c5d8c64ed6857df04bdb5a4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "STD_EM",
+                                    "STD_MB",
+                                    "STD_EMAIL",
+                                    "DEP_ID"
+                                ],
+                                "properties": {
+                                    "STD_EM": {
+                                        "type": "string",
+                                        "example": "Anisa"
+                                    },
+                                    "STD_MB": {
+                                        "type": "string",
+                                        "example": "Hoxha"
+                                    },
+                                    "STD_EMAIL": {
+                                        "type": "string",
+                                        "example": "anisa@uamd.edu.al"
+                                    },
+                                    "DEP_ID": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Studenti u krijua"
+                    },
+                    "422": {
+                        "description": "Gabim validimi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/studentet/{id}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Detajet e një studenti",
+                "operationId": "3a12a04ef7bea3aae1b8977900365889",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detajet e studentit"
+                    },
+                    "404": {
+                        "description": "Studenti nuk u gjet"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Përditëso të dhënat e studentit",
+                "operationId": "b857b0a85a67769fc7d496469d0294d3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "STD_EM": {
+                                        "type": "string"
+                                    },
+                                    "STD_MB": {
+                                        "type": "string"
+                                    },
+                                    "STD_EMAIL": {
+                                        "type": "string"
+                                    },
+                                    "DEP_ID": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Studenti u përditësua"
+                    },
+                    "404": {
+                        "description": "Studenti nuk u gjet"
+                    },
+                    "422": {
+                        "description": "Gabim validimi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Fshi studentin",
+                "operationId": "6c676ce2e7a2ec9ad4db2e7b7416a682",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Studenti u fshi"
+                    },
+                    "404": {
+                        "description": "Studenti nuk u gjet"
+                    },
+                    "409": {
+                        "description": "Studenti ka regjistrime aktive"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/departamente": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Listo departamentet (për dropdown)",
+                "operationId": "d17aac19bcd4027fbbc34018771346fc",
+                "responses": {
+                    "200": {
+                        "description": "Listë e departamenteve"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/auth/register": {
             "post": {
                 "tags": [
@@ -161,6 +400,360 @@
                     }
                 ]
             }
+        },
+        "/auth/forgot-password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Kërko link rikuperimi për fjalëkalim",
+                "operationId": "fea89d2766defe4ad877001920e3f289",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "arta@uni.edu"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Nëse emaili ekziston, u dërgua një link rikuperimi"
+                    },
+                    "422": {
+                        "description": "Gabim validimi"
+                    },
+                    "429": {
+                        "description": "Rate limit i kaluar"
+                    }
+                }
+            }
+        },
+        "/auth/reset-password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Rivendos fjalëkalimin me token",
+                "operationId": "b8d03d5b689dcb65d3771f62d4f90a24",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "token",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "arta@uni.edu"
+                                    },
+                                    "token": {
+                                        "type": "string",
+                                        "example": "64-char-random-token"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "fjalkalim8"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "example": "fjalkalim8"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Fjalëkalimi u përditësua"
+                    },
+                    "400": {
+                        "description": "Kodi i verifikimi i pavlefshëm ose ka skaduar"
+                    },
+                    "422": {
+                        "description": "Gabim validimi"
+                    }
+                }
+            }
+        },
+        "/pedagog/seksione": {
+            "get": {
+                "tags": [
+                    "Pedagog"
+                ],
+                "summary": "Seksionet që ligjëron pedagogu",
+                "operationId": "f58952e3260cfd0c8199c851450e6c8b",
+                "responses": {
+                    "200": {
+                        "description": "Listë seksionesh të ligjëruara"
+                    },
+                    "401": {
+                        "description": "Nuk je i autentikuar"
+                    },
+                    "403": {
+                        "description": "Nuk ke rolin pedagog"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/pedagog/provime": {
+            "get": {
+                "tags": [
+                    "Pedagog"
+                ],
+                "summary": "Provimet e ardhshme për seksionet e pedagogut",
+                "operationId": "f4a1db0879cf09dc994462ecadec4b08",
+                "responses": {
+                    "200": {
+                        "description": "Listë provimesh të ardhshme"
+                    },
+                    "401": {
+                        "description": "Nuk je i autentikuar"
+                    },
+                    "403": {
+                        "description": "Nuk ke rolin pedagog"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/pedagog/statistikat": {
+            "get": {
+                "tags": [
+                    "Pedagog"
+                ],
+                "summary": "Statistikat e pedagogut (numri i seksioneve, lëndëve, etj.)",
+                "operationId": "9a01df8fb54329bf8a6d2f536d751bfe",
+                "responses": {
+                    "200": {
+                        "description": "Statistikat e pedagogut"
+                    },
+                    "401": {
+                        "description": "Nuk je i autentikuar"
+                    },
+                    "403": {
+                        "description": "Nuk ke rolin pedagog"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/student/statistikat": {
+            "get": {
+                "tags": [
+                    "Student"
+                ],
+                "summary": "Statistikat e studentit të autentikuar",
+                "operationId": "535b92eb94446f2463059b09889214b9",
+                "responses": {
+                    "200": {
+                        "description": "Statistikat: numri i lëndëve, provimeve, krediteve dhe profili"
+                    },
+                    "401": {
+                        "description": "Nuk je i autentikuar"
+                    },
+                    "403": {
+                        "description": "Nuk ke rolin student"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/student/lende": {
+            "get": {
+                "tags": [
+                    "Student"
+                ],
+                "summary": "Lista e lëndëve në të cilat studenti është regjistruar",
+                "operationId": "0eaa8429a6ff330d58f8cd7a625d1950",
+                "responses": {
+                    "200": {
+                        "description": "Listë me lëndët dhe seksionet përkatëse"
+                    },
+                    "401": {
+                        "description": "Nuk je i autentikuar"
+                    },
+                    "403": {
+                        "description": "Nuk ke rolin student"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/student/provime": {
+            "get": {
+                "tags": [
+                    "Student"
+                ],
+                "summary": "Provimet e ardhshme për studentin",
+                "operationId": "92946b657c6bec52f01a45ec0a7ba5e9",
+                "responses": {
+                    "200": {
+                        "description": "Listë me provimet e ardhshme"
+                    },
+                    "401": {
+                        "description": "Nuk je i autentikuar"
+                    },
+                    "403": {
+                        "description": "Nuk ke rolin student"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/student/seksione": {
+            "get": {
+                "tags": [
+                    "Student"
+                ],
+                "summary": "Seksionet e disponueshme (me status të regjistrimit)",
+                "operationId": "cc5e72179ca1bfd3d74be9f81e8913bb",
+                "responses": {
+                    "200": {
+                        "description": "Listë seksionesh me `i_regjistruar` për secilin"
+                    },
+                    "401": {
+                        "description": "Nuk je i autentikuar"
+                    },
+                    "403": {
+                        "description": "Nuk ke rolin student"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/student/regjistrim": {
+            "post": {
+                "tags": [
+                    "Student"
+                ],
+                "summary": "Regjistro studentin në një seksion",
+                "operationId": "2675f06046d65b3299b39f6999836034",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "sek_id"
+                                ],
+                                "properties": {
+                                    "sek_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Regjistrimi u krye"
+                    },
+                    "409": {
+                        "description": "Tashmë i regjistruar ose seksioni është plot"
+                    },
+                    "422": {
+                        "description": "Gabim validimi"
+                    },
+                    "401": {
+                        "description": "Nuk je i autentikuar"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/student/regjistrim/{id}": {
+            "delete": {
+                "tags": [
+                    "Student"
+                ],
+                "summary": "Çregjistro studentin nga një seksion (vetëm përpara fillimit të semestrit)",
+                "operationId": "efe1494210c871d84c0ce7dbbec90e7d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID e regjistrimit (REGJL_ID)",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Çregjistrimi u krye"
+                    },
+                    "403": {
+                        "description": "Semestri ka filluar — nuk lejohet çregjistrimi"
+                    },
+                    "404": {
+                        "description": "Regjistrimi nuk u gjet ose nuk i përket studentit aktual"
+                    },
+                    "401": {
+                        "description": "Nuk je i autentikuar"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -174,6 +767,18 @@
         }
     },
     "tags": [
+        {
+            "name": "Admin",
+            "description": "Endpoint-e për menaxhimin e studentëve nga administratori"
+        },
+        {
+            "name": "Pedagog",
+            "description": "Endpoint-e të aksesueshme vetëm nga pedagogët e autentikuar"
+        },
+        {
+            "name": "Student",
+            "description": "Endpoint-e të aksesueshme vetëm nga studentët e autentikuar"
+        },
         {
             "name": "Auth",
             "description": "Auth"
